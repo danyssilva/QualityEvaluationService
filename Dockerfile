@@ -1,4 +1,4 @@
-FROM python:3.11-slim
+FROM python:3.10-slim-bullseye
 
 WORKDIR /app
 
@@ -10,7 +10,15 @@ RUN apt-get update && apt-get install -y \
     libgraphviz-dev \
     && rm -rf /var/lib/apt/lists/*
 
+# Usa versões de NumPy/SciPy compatíveis com CPUs antigas
+# (wheels do PyPI para Python 3.10 + Bullseye são compilados para x86-64 baseline)
+RUN pip install --no-cache-dir \
+    numpy==1.24.4 \
+    scipy==1.11.4
+
 COPY requirements.txt .
+
+# Instala o restante das dependências (numpy e scipy já instalados acima serão ignorados)
 RUN pip install --no-cache-dir -r requirements.txt
 
 COPY main.py .
